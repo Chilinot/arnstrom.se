@@ -4,6 +4,7 @@ import Html exposing (..)
 import Html.Events exposing (onClick)
 import Html.Attributes exposing (href)
 import Navigation exposing (Location)
+import Color
 import UrlParser
 import Bootstrap.Navbar as Navbar
 import Bootstrap.Grid as Grid
@@ -102,7 +103,8 @@ view_navbar model =
     Navbar.config NavMsg
         |> Navbar.withAnimation
         |> Navbar.container
-        |> Navbar.brand [ href "#home" ] [ text "Lucas Arnström" ]
+        |> Navbar.lightCustom Color.white
+        |> Navbar.brand [ href "#home" ] [ h2 [] [ text "Lucas Arnström" ] ]
         |> Navbar.items
             [ Navbar.itemLink [ href "#about" ] [ text "About" ]
             , Navbar.itemLink [ href "#public_keys" ] [ text "Public Keys" ]
