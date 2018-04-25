@@ -14,14 +14,17 @@ RUN elm-package install -y && \
 COPY --chown=node:node . .
 
 # Compile project
-RUN elm-make src/*.elm --output elm.js && \
+RUN elm-make src/Main.elm --output elm.js && \
     uglifyjs --compress --mangle -- elm.js > elm.min.js
 
 ##### Construct production image
 FROM nginx:1.13-alpine
 
+# Configure nginx
+COPY nginx /etc/nginx/conf.d
+
 # Insert non-elm code
-COPY static /usr/share/nginx/html
+COPY static /var/www
 
 # Insert compiled elm code
-COPY --from=0 /home/node/app/elm.min.js /usr/share/nginx/html/elm.min.js
+COPY --from=0 /home/node/app/elm.min.js /var/www/elm.min.js
