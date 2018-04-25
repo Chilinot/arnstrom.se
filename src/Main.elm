@@ -101,7 +101,6 @@ view model =
 view_navbar : Model -> Html Msg
 view_navbar model =
     Navbar.config NavMsg
-        |> Navbar.withAnimation
         |> Navbar.container
         |> Navbar.lightCustom Color.white
         |> Navbar.brand [ href "#home" ] [ h2 [] [ text "Lucas Arnström" ] ]
