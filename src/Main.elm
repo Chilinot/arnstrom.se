@@ -103,10 +103,10 @@ view_navbar model =
     Navbar.config NavMsg
         |> Navbar.container
         |> Navbar.lightCustom Color.white
-        |> Navbar.brand [ href "#home" ] [ h2 [] [ text "Lucas Arnström" ] ]
+        |> Navbar.brand [ href "#/home" ] [ h2 [] [ text "Lucas Arnström" ] ]
         |> Navbar.items
-            [ Navbar.itemLink [ href "#about" ] [ text "About" ]
-            , Navbar.itemLink [ href "#public_keys" ] [ text "Public Keys" ]
+            [ Navbar.itemLink [ href "#/about" ] [ text "About" ]
+            , Navbar.itemLink [ href "#/public_keys" ] [ text "Public Keys" ]
             ]
         |> Navbar.view model.nav_state
 
