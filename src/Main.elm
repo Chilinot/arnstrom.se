@@ -12,6 +12,7 @@ import Bootstrap.Grid.Col as Col
 import Pages.Home as Home
 import Pages.About as About
 import Pages.PublicKeys as PublicKeys
+import Pages.Contact as Contact
 
 
 main =
@@ -31,6 +32,7 @@ type Page
     = Home
     | About
     | PublicKeys
+    | Contact
 
 
 route : UrlParser.Parser (Page -> a) a
@@ -39,6 +41,7 @@ route =
         [ UrlParser.map Home (UrlParser.s "home")
         , UrlParser.map About (UrlParser.s "about")
         , UrlParser.map PublicKeys (UrlParser.s "public_keys")
+        , UrlParser.map Contact (UrlParser.s "contact")
         ]
 
 
@@ -67,6 +70,7 @@ type alias Model =
     , home : Home.Model
     , about : About.Model
     , public_keys : PublicKeys.Model
+    , contact : Contact.Model
     }
 
 
@@ -81,6 +85,7 @@ init location =
           , home = Home.init
           , about = About.init
           , public_keys = PublicKeys.init
+          , contact = Contact.init
           }
         , nav_cmd
         )
@@ -107,6 +112,7 @@ view_navbar model =
         |> Navbar.items
             [ Navbar.itemLink [ href "#/about" ] [ text "About" ]
             , Navbar.itemLink [ href "#/public_keys" ] [ text "Public Keys" ]
+            , Navbar.itemLink [ href "#/contact" ] [ text "Contact" ]
             ]
         |> Navbar.view model.nav_state
 
@@ -123,6 +129,9 @@ view_page model =
 
             PublicKeys ->
                 PublicKeys.view model.public_keys
+
+            Contact ->
+                Contact.view model.contact
 
 
 

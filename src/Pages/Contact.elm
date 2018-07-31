@@ -1,13 +1,8 @@
-module Pages.Home exposing (..)
+module Pages.Contact exposing (..)
 
 import Html exposing (Html, text, h3)
 import Markdown
 import Bootstrap.Grid as Grid
-
-
-root_url : String
-root_url =
-    "https://api.github.com/repos/chilinot/arnstrom.se/contents"
 
 
 type alias Model =
@@ -22,7 +17,7 @@ init =
 content : Html msg
 content =
     Markdown.toHtml [] """
-This will someday in the future contain my blog. Currently there is not much here.
+You can contact me using matrix: `@lucasemanuel:matrix.org`
 """
 
 
