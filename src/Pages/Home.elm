@@ -7,7 +7,7 @@ import Bootstrap.Grid as Grid
 
 root_url : String
 root_url =
-    "https://api.github.com/repos/chilinot/arnstrom.se/contents"
+    "https://api.github.com/repos/chilinot/blog/contents"
 
 
 type alias Model =
