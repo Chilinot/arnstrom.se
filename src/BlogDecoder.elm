@@ -1,6 +1,6 @@
 module BlogDecoder exposing (..)
 
-import Html exposing (Html, text)
+import Html exposing (Html, text, li)
 import Regex exposing (Regex, regex, contains)
 import Json.Decode exposing (string, list, Decoder)
 import Json.Decode.Pipeline exposing (decode, required, optional, hardcoded)
@@ -85,13 +85,13 @@ onlyBlogPosts list =
 
 {-| Creates an HTML compatible text message from the filename.
 -}
-renderFilename : File -> Html msg
-renderFilename file =
-    text <| extractPostName file
+filename2item : File -> Html msg
+filename2item file =
+    li [] [ text <| extractPostName file ]
 
 
 {-| Generates a list of HTML compatible text-messages from a list of files.
 -}
 filenames2items : List File -> List (Html msg)
 filenames2items filelist =
-    List.map renderFilename <| onlyBlogPosts filelist
+    List.map filename2item <| onlyBlogPosts filelist
