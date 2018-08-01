@@ -69,9 +69,10 @@ fileDecoder =
 {-| Decodes a JSON string into a list of Files.
 For decoding the content list returned by github.
 -}
-contentListDecoder : String -> Result String (List File)
+contentListDecoder : String -> List File
 contentListDecoder json =
     Json.Decode.decodeString (list fileDecoder) json
+        |> Result.withDefault [ File "No blogpost found!" "" ]
 
 
 {-| Retrieves the name of the post from the filename using regex.

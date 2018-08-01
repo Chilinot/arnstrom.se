@@ -13,13 +13,18 @@ import Pages.Blog as Blog
 import Pages.About as About
 import Pages.PublicKeys as PublicKeys
 import Pages.Contact as Contact
+import RouteUrl exposing (RouteUrlProgram, UrlChange)
+import RouteUrl.Builder as Builder exposing (Builder)
 
 
+main : RouteUrlProgram Never Model Msg
 main =
-    Navigation.program locFor
-        { init = init
-        , view = view
+    RouteUrl.program
+        { delta2url = delta2hash
+        , location2messages = hash2messages
+        , init = init
         , update = update
+        , view = view
         , subscriptions = subscriptions
         }
 
@@ -35,29 +40,62 @@ type Page
     | Contact
 
 
-route : UrlParser.Parser (Page -> a) a
-route =
-    UrlParser.oneOf
-        [ UrlParser.map Blog (UrlParser.s "blog")
-        , UrlParser.map About (UrlParser.s "about")
-        , UrlParser.map PublicKeys (UrlParser.s "public_keys")
-        , UrlParser.map Contact (UrlParser.s "contact")
-        ]
+delta2hash : Model -> Model -> Maybe UrlChange
+delta2hash prev curr =
+    Maybe.map Builder.toHashChange <| delta2builder prev curr
 
 
-parsePage : Location -> Page
-parsePage location =
-    case UrlParser.parseHash route location of
-        Just page ->
-            page
+delta2builder : Model -> Model -> Maybe Builder
+delta2builder prev curr =
+    case curr.current_page of
+        Blog ->
+            Blog.delta2builder prev.blog curr.blog
+                |> Maybe.map (Builder.prependToPath [ "blog" ])
 
-        Nothing ->
-            Blog
+        About ->
+            About.delta2builder prev.about curr.about
+                |> Maybe.map (Builder.prependToPath [ "about" ])
+
+        PublicKeys ->
+            PublicKeys.delta2builder prev.about curr.about
+                |> Maybe.map (Builder.prependToPath [ "public_keys" ])
+
+        Contact ->
+            Contact.delta2builder prev.contact curr.contact
+                |> Maybe.map (Builder.prependToPath [ "contact" ])
 
 
-locFor : Location -> Msg
-locFor location =
-    GoTo (parsePage location)
+hash2messages : Location -> List Msg
+hash2messages location =
+    builder2messages (Builder.fromHash location.href)
+
+
+builder2messages : Builder -> List Msg
+builder2messages builder =
+    case Builder.path builder of
+        first :: rest ->
+            let
+                subBuilder =
+                    Builder.replacePath rest builder
+            in
+                case first of
+                    "blog" ->
+                        (GoTo Blog) :: List.map BlogMsg (Blog.builder2messages subBuilder)
+
+                    "about" ->
+                        (GoTo About) :: List.map AboutMsg (About.builder2messages subBuilder)
+
+                    "public_keys" ->
+                        (GoTo PublicKeys) :: List.map PublicKeysMsg (PublicKeys.builder2messages subBuilder)
+
+                    "contact" ->
+                        (GoTo Contact) :: List.map ContactMsg (Contact.builder2messages subBuilder)
+
+                    _ ->
+                        [ GoTo Blog ]
+
+        _ ->
+            [ GoTo Blog ]
 
 
 
@@ -74,13 +112,13 @@ type alias Model =
     }
 
 
-init : Location -> ( Model, Cmd Msg )
-init location =
+init : ( Model, Cmd Msg )
+init =
     let
         ( nav_state, nav_cmd ) =
             Navbar.initialState NavMsg
     in
-        ( { current_page = parsePage location
+        ( { current_page = Blog
           , nav_state = nav_state
           , blog = Blog.init
           , about = About.init
@@ -97,41 +135,38 @@ init location =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ view_navbar model
-        , view_page model
-        ]
+    let
+        navbar model =
+            Navbar.config NavMsg
+                |> Navbar.container
+                |> Navbar.lightCustom Color.white
+                |> Navbar.brand [ href "#!/blog" ] [ h2 [] [ text "Lucas Arnström" ] ]
+                |> Navbar.items
+                    [ Navbar.itemLink [ href "#!/about" ] [ text "About" ]
+                    , Navbar.itemLink [ href "#!/public_keys" ] [ text "Public Keys" ]
+                    , Navbar.itemLink [ href "#!/contact" ] [ text "Contact" ]
+                    ]
+                |> Navbar.view model.nav_state
 
+        page model =
+            Grid.container [] <|
+                case model.current_page of
+                    Blog ->
+                        Blog.view model.blog
 
-view_navbar : Model -> Html Msg
-view_navbar model =
-    Navbar.config NavMsg
-        |> Navbar.container
-        |> Navbar.lightCustom Color.white
-        |> Navbar.brand [ href "#/blog" ] [ h2 [] [ text "Lucas Arnström" ] ]
-        |> Navbar.items
-            [ Navbar.itemLink [ href "#/about" ] [ text "About" ]
-            , Navbar.itemLink [ href "#/public_keys" ] [ text "Public Keys" ]
-            , Navbar.itemLink [ href "#/contact" ] [ text "Contact" ]
+                    About ->
+                        About.view model.about
+
+                    PublicKeys ->
+                        PublicKeys.view model.public_keys
+
+                    Contact ->
+                        Contact.view model.contact
+    in
+        div []
+            [ navbar model
+            , page model
             ]
-        |> Navbar.view model.nav_state
-
-
-view_page : Model -> Html Msg
-view_page model =
-    Grid.container [] <|
-        case model.current_page of
-            Blog ->
-                Blog.view model.blog
-
-            About ->
-                About.view model.about
-
-            PublicKeys ->
-                PublicKeys.view model.public_keys
-
-            Contact ->
-                Contact.view model.contact
 
 
 
@@ -140,6 +175,10 @@ view_page model =
 
 type Msg
     = GoTo Page
+    | BlogMsg Blog.Msg
+    | AboutMsg About.Msg
+    | PublicKeysMsg PublicKeys.Msg
+    | ContactMsg Contact.Msg
     | NavMsg Navbar.State
 
 
@@ -151,6 +190,26 @@ update msg model =
 
         NavMsg state ->
             ( { model | nav_state = state }, Cmd.none )
+
+        BlogMsg submsg ->
+            ( { model | blog = Blog.update submsg model.blog }
+            , Cmd.none
+            )
+
+        AboutMsg submsg ->
+            ( { model | about = About.update submsg model.about }
+            , Cmd.none
+            )
+
+        PublicKeysMsg submsg ->
+            ( { model | public_keys = PublicKeys.update submsg model.public_keys }
+            , Cmd.none
+            )
+
+        ContactMsg submsg ->
+            ( { model | contact = Contact.update submsg model.contact }
+            , Cmd.none
+            )
 
 
 
