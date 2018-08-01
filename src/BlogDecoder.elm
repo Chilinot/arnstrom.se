@@ -6,34 +6,6 @@ import Json.Decode exposing (string, list, Decoder)
 import Json.Decode.Pipeline exposing (decode, required, optional, hardcoded)
 
 
-test_data : String
-test_data =
-    """
-[
-  {
-    "name": "1-first.md",
-    "path": "1-first.md",
-    "sha": "1e1eeabc903776b3894eb295db7b06f04b2aded0",
-    "size": 21,
-    "url": "https://api.github.com/repos/Chilinot/blog/contents/1-first.md?ref=master",
-    "html_url": "https://github.com/Chilinot/blog/blob/master/1-first.md",
-    "git_url": "https://api.github.com/repos/Chilinot/blog/git/blobs/1e1eeabc903776b3894eb295db7b06f04b2aded0",
-    "download_url": "https://raw.githubusercontent.com/Chilinot/blog/master/1-first.md",
-    "type": "file",
-    "_links": {
-      "self": "https://api.github.com/repos/Chilinot/blog/contents/1-first.md?ref=master",
-      "git": "https://api.github.com/repos/Chilinot/blog/git/blobs/1e1eeabc903776b3894eb295db7b06f04b2aded0",
-      "html": "https://github.com/Chilinot/blog/blob/master/1-first.md"
-    }
-  },
-  {
-    "name":"asdf",
-    "download_url":"asdf"
-  }
-]
-"""
-
-
 {-| For retrieving the contents of the master branch of the github repo.
 -}
 root_url : String
@@ -69,10 +41,11 @@ fileDecoder =
 {-| Decodes a JSON string into a list of Files.
 For decoding the content list returned by github.
 -}
-contentListDecoder : String -> List File
-contentListDecoder json =
-    Json.Decode.decodeString (list fileDecoder) json
-        |> Result.withDefault [ File "No blogpost found!" "" ]
+contentListDecoder : Decoder (List File)
+contentListDecoder =
+    --Json.Decode.decodeString (list fileDecoder) json
+    --    |> Result.withDefault [ File "No blogpost found!" "" ]
+    list fileDecoder
 
 
 {-| Retrieves the name of the post from the filename using regex.

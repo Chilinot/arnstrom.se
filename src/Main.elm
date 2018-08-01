@@ -125,7 +125,7 @@ init =
           , public_keys = PublicKeys.init
           , contact = Contact.init
           }
-        , nav_cmd
+        , Cmd.batch [ nav_cmd, Cmd.map BlogMsg <| Blog.downloadContentlistCmd ]
         )
 
 
@@ -192,9 +192,13 @@ update msg model =
             ( { model | nav_state = state }, Cmd.none )
 
         BlogMsg submsg ->
-            ( { model | blog = Blog.update submsg model.blog }
-            , Cmd.none
-            )
+            let
+                result =
+                    Blog.update submsg model.blog
+            in
+                ( { model | blog = Tuple.first result }
+                , Cmd.map BlogMsg <| Tuple.second result
+                )
 
         AboutMsg submsg ->
             ( { model | about = About.update submsg model.about }
