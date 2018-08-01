@@ -9,7 +9,7 @@ import UrlParser
 import Bootstrap.Navbar as Navbar
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
-import Pages.Home as Home
+import Pages.Blog as Blog
 import Pages.About as About
 import Pages.PublicKeys as PublicKeys
 import Pages.Contact as Contact
@@ -29,7 +29,7 @@ main =
 
 
 type Page
-    = Home
+    = Blog
     | About
     | PublicKeys
     | Contact
@@ -38,7 +38,7 @@ type Page
 route : UrlParser.Parser (Page -> a) a
 route =
     UrlParser.oneOf
-        [ UrlParser.map Home (UrlParser.s "home")
+        [ UrlParser.map Blog (UrlParser.s "blog")
         , UrlParser.map About (UrlParser.s "about")
         , UrlParser.map PublicKeys (UrlParser.s "public_keys")
         , UrlParser.map Contact (UrlParser.s "contact")
@@ -52,7 +52,7 @@ parsePage location =
             page
 
         Nothing ->
-            Home
+            Blog
 
 
 locFor : Location -> Msg
@@ -67,7 +67,7 @@ locFor location =
 type alias Model =
     { current_page : Page
     , nav_state : Navbar.State
-    , home : Home.Model
+    , blog : Blog.Model
     , about : About.Model
     , public_keys : PublicKeys.Model
     , contact : Contact.Model
@@ -82,7 +82,7 @@ init location =
     in
         ( { current_page = parsePage location
           , nav_state = nav_state
-          , home = Home.init
+          , blog = Blog.init
           , about = About.init
           , public_keys = PublicKeys.init
           , contact = Contact.init
@@ -108,7 +108,7 @@ view_navbar model =
     Navbar.config NavMsg
         |> Navbar.container
         |> Navbar.lightCustom Color.white
-        |> Navbar.brand [ href "#/home" ] [ h2 [] [ text "Lucas Arnström" ] ]
+        |> Navbar.brand [ href "#/blog" ] [ h2 [] [ text "Lucas Arnström" ] ]
         |> Navbar.items
             [ Navbar.itemLink [ href "#/about" ] [ text "About" ]
             , Navbar.itemLink [ href "#/public_keys" ] [ text "Public Keys" ]
@@ -121,8 +121,8 @@ view_page : Model -> Html Msg
 view_page model =
     Grid.container [] <|
         case model.current_page of
-            Home ->
-                Home.view model.home
+            Blog ->
+                Blog.view model.blog
 
             About ->
                 About.view model.about
