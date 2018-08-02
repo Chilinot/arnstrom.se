@@ -12,9 +12,20 @@ type alias Model =
     { contentlist : List File }
 
 
+type Msg
+    = UpdateContentlist (Result Http.Error (List File))
+    | FetchContentlist
+
+
 init : Model
 init =
     { contentlist = [] }
+
+
+downloadContentlistCmd : Cmd Msg
+downloadContentlistCmd =
+    Http.get (BlogDecoder.root_url) BlogDecoder.contentListDecoder
+        |> Http.send UpdateContentlist
 
 
 delta2builder : Model -> Model -> Maybe Builder
@@ -22,12 +33,8 @@ delta2builder prev curr =
     --builder
     --    |> replacePath [ toString curr ]
     --    |> Just
+    -- TODO: Implement this to set the selected blogpost in the url
     Nothing
-
-
-type Msg
-    = UpdateContentlist (Result Http.Error (List File))
-    | FetchContentlist
 
 
 builder2messages : Builder -> List Msg
@@ -36,12 +43,6 @@ builder2messages builder =
         -- TODO: Implement this to fetch the blogpost in the url
         _ ->
             [ FetchContentlist ]
-
-
-downloadContentlistCmd : Cmd Msg
-downloadContentlistCmd =
-    Http.get (BlogDecoder.root_url) BlogDecoder.contentListDecoder
-        |> Http.send UpdateContentlist
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -55,22 +56,19 @@ update msg model =
                 ( { model | contentlist = newlist }, Cmd.none )
 
         FetchContentlist ->
-            ( model
-            , downloadContentlistCmd
-            )
-
-
-content : Model -> Html msg
-content model =
-    ul [] <|
-        if model.contentlist == [] then
-            [ text "No blog posts loaded." ]
-        else
-            filenames2items model.contentlist
+            ( model, downloadContentlistCmd )
 
 
 view : Model -> List (Html msg)
 view model =
-    [ Grid.row []
-        [ Grid.col [] [ content model ] ]
-    ]
+    let
+        content model =
+            ul [] <|
+                if model.contentlist == [] then
+                    [ text "No blog posts loaded." ]
+                else
+                    filenames2items model.contentlist
+    in
+        [ Grid.row []
+            [ Grid.col [] [ content model ] ]
+        ]

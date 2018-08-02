@@ -125,7 +125,10 @@ init =
           , public_keys = PublicKeys.init
           , contact = Contact.init
           }
-        , Cmd.batch [ nav_cmd, Cmd.map BlogMsg <| Blog.downloadContentlistCmd ]
+        , Cmd.batch
+            [ nav_cmd
+            , Cmd.map BlogMsg Blog.downloadContentlistCmd
+            ]
         )
 
 
