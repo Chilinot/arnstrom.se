@@ -1,6 +1,6 @@
 module Pages.PublicKeys exposing (..)
 
-import Html exposing (Html, text, h4, pre)
+import Html exposing (Html, text, h4, pre, div)
 import Markdown
 import Bootstrap.Grid as Grid
 import Bootstrap.Card as Card
@@ -85,24 +85,25 @@ Laxhb4lD3fNzDBP4KTv3/zWSloF3YDiy0MaF5c9xvYcQagvRxRzef0+l545eHSPy
 """
 
 
-view : Model -> List (Html msg)
+view : Model -> Html msg
 view model =
-    [ Grid.row []
-        [ Grid.col []
-            [ h4 [] [ text "SSH" ]
-            , Card.config []
-                |> Card.block []
-                    [ Block.text [] [ pre [] [ text ssh_key ] ] ]
-                |> Card.view
+    div []
+        [ Grid.row []
+            [ Grid.col []
+                [ h4 [] [ text "SSH" ]
+                , Card.config []
+                    |> Card.block []
+                        [ Block.text [] [ pre [] [ text ssh_key ] ] ]
+                    |> Card.view
+                ]
+            ]
+        , Grid.row []
+            [ Grid.col []
+                [ h4 [] [ text "PGP" ]
+                , Card.config []
+                    |> Card.block []
+                        [ Block.text [] [ pre [] [ text pgp_key ] ] ]
+                    |> Card.view
+                ]
             ]
         ]
-    , Grid.row []
-        [ Grid.col []
-            [ h4 [] [ text "PGP" ]
-            , Card.config []
-                |> Card.block []
-                    [ Block.text [] [ pre [] [ text pgp_key ] ] ]
-                |> Card.view
-            ]
-        ]
-    ]

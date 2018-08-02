@@ -1,6 +1,6 @@
 module Main exposing (..)
 
-import Html exposing (..)
+import Html exposing (Html, h2, div, map, text)
 import Html.Events exposing (onClick)
 import Html.Attributes exposing (href)
 import Navigation exposing (Location)
@@ -152,19 +152,20 @@ view model =
                 |> Navbar.view model.nav_state
 
         page model =
-            Grid.container [] <|
-                case model.current_page of
+            Grid.container []
+                [ case model.current_page of
                     Blog ->
-                        Blog.view model.blog
+                        map BlogMsg <| Blog.view model.blog
 
                     About ->
-                        About.view model.about
+                        map AboutMsg <| About.view model.about
 
                     PublicKeys ->
-                        PublicKeys.view model.public_keys
+                        map PublicKeysMsg <| PublicKeys.view model.public_keys
 
                     Contact ->
-                        Contact.view model.contact
+                        map ContactMsg <| Contact.view model.contact
+                ]
     in
         div []
             [ navbar model

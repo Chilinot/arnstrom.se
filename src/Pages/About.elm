@@ -1,6 +1,6 @@
 module Pages.About exposing (..)
 
-import Html exposing (Html, text, h3)
+import Html exposing (Html, text, h3, div)
 import Markdown
 import Bootstrap.Grid as Grid
 import RouteUrl.Builder exposing (Builder, builder, replacePath)
@@ -51,8 +51,7 @@ You can see all my public repositories [here](https://github.com/chilinot).
 """
 
 
-view : Model -> List (Html msg)
+view : Model -> Html msg
 view model =
-    [ Grid.row []
+    Grid.row []
         [ Grid.col [] [ content ] ]
-    ]

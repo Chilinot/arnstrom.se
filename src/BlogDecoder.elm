@@ -1,6 +1,5 @@
 module BlogDecoder exposing (..)
 
-import Html exposing (Html, text, li)
 import Regex exposing (Regex, regex, contains)
 import Json.Decode exposing (string, list, Decoder)
 import Json.Decode.Pipeline exposing (decode, required, optional, hardcoded)
@@ -29,6 +28,35 @@ type alias File =
     }
 
 
+{-| Represents a blogpost, with optionally downloaded contents.
+The contents is the raw markdown from the file, as a single string.
+-}
+type alias Post =
+    { name : String
+    , download_url : String
+    , contents : Maybe String
+    }
+
+
+{-| Converts a File to a Post, if it is actully a blog post.
+-}
+file2Post : File -> Maybe Post
+file2Post file =
+    if isBlogPost file then
+        Just <| Post file.name file.download_url Nothing
+    else
+        Nothing
+
+
+{-| Decodes the returned content of a blog post.
+Right now this is only handled as a string. Which is very
+likely to change in the future.
+-}
+postContentDecoder : Decoder String
+postContentDecoder =
+    Json.Decode.string
+
+
 {-| Decodes JSON into a File.
 -}
 fileDecoder : Decoder File
@@ -50,9 +78,9 @@ contentListDecoder =
 
 {-| Retrieves the name of the post from the filename using regex.
 -}
-extractPostName : File -> String
-extractPostName file =
-    Regex.find Regex.All blogpost_regex file.name
+extractPostName : Post -> String
+extractPostName post =
+    Regex.find Regex.All blogpost_regex post.name
         -- Get the first matched data from the list of matches.
         |> List.head
         -- If the list was empty, create a hacky empty "Match" object that reflects the error.
@@ -74,24 +102,3 @@ represents a blogpost or not.
 isBlogPost : File -> Bool
 isBlogPost file =
     contains blogpost_regex file.name
-
-
-{-| Returns a list of all matched blogposts in the given list.
--}
-onlyBlogPosts : List File -> List File
-onlyBlogPosts list =
-    List.filter isBlogPost list
-
-
-{-| Creates an HTML compatible text message from the filename.
--}
-filename2item : File -> Html msg
-filename2item file =
-    li [] [ text <| extractPostName file ]
-
-
-{-| Generates a list of HTML compatible text-messages from a list of files.
--}
-filenames2items : List File -> List (Html msg)
-filenames2items filelist =
-    List.map filename2item <| onlyBlogPosts filelist
