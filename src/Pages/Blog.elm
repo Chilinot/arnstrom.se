@@ -9,17 +9,28 @@ import RouteUrl.Builder exposing (Builder, builder, replacePath, path)
 
 
 type alias Model =
-    { contentlist : List File }
+    { contentlist : List File
+    , subpage : SubPage
+    }
+
+
+type SubPage
+    = Index
+      -- The string should contain some identifier for the post
+    | Post String
 
 
 type Msg
     = UpdateContentlist (Result Http.Error (List File))
     | FetchContentlist
+    | View SubPage
 
 
 init : Model
 init =
-    { contentlist = [] }
+    { contentlist = []
+    , subpage = Index
+    }
 
 
 downloadContentlistCmd : Cmd Msg
@@ -58,17 +69,25 @@ update msg model =
         FetchContentlist ->
             ( model, downloadContentlistCmd )
 
+        View subpage ->
+            ( { model | subpage = subpage }, Cmd.none )
+
 
 view : Model -> List (Html msg)
 view model =
     let
-        content model =
+        index model =
             ul [] <|
                 if model.contentlist == [] then
                     [ text "No blog posts loaded." ]
                 else
                     filenames2items model.contentlist
     in
-        [ Grid.row []
-            [ Grid.col [] [ content model ] ]
-        ]
+        case model.subpage of
+            Index ->
+                [ Grid.row []
+                    [ Grid.col [] [ index model ] ]
+                ]
+
+            Post id ->
+                [ text "TODO" ]
