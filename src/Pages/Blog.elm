@@ -96,7 +96,7 @@ update msg model =
 
                 -- Convert the returned files to Post records.
                 newlist =
-                    List.map BlogDecoder.file2Post inputlist
+                    List.map BlogDecoder.file2post inputlist
                         |> Maybe.Extra.values
             in
                 ( { model | contentlist = newlist }, Cmd.none )

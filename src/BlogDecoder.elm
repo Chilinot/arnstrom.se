@@ -44,8 +44,8 @@ type alias Post =
 
 {-| Converts a File to a Post, if it is actully a blog post.
 -}
-file2Post : File -> Maybe Post
-file2Post file =
+file2post : File -> Maybe Post
+file2post file =
     if isBlogPost file then
         Just <| Post file.name Nothing
     else
