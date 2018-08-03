@@ -42,13 +42,13 @@ init =
 
 downloadContentlistCmd : Cmd Msg
 downloadContentlistCmd =
-    Http.get (BlogDecoder.root_url) BlogDecoder.contentListDecoder
+    Http.get (BlogDecoder.root_contents_url) BlogDecoder.contentListDecoder
         |> Http.send UpdateContentlist
 
 
 downloadBlogPostCmd : Post -> Cmd Msg
 downloadBlogPostCmd post =
-    Http.getString post.download_url
+    Http.getString (BlogDecoder.root_download_url ++ post.name)
         |> Http.send (UpdateBlogPost post.name)
 
 
@@ -123,14 +123,12 @@ update msg model =
                             toString err
 
                 blogpost =
-                    --postlocator model.contentlist name
-                    --    |> Maybe.withDefault (BlogDecoder.Post name "" (Just content))
                     case postlocator model.contentlist name of
                         Just p ->
                             { p | contents = Just content }
 
                         Nothing ->
-                            BlogDecoder.Post name "" (Just "Could not find post!")
+                            BlogDecoder.Post name (Just "Could not find post!")
 
                 newcontentlist =
                     blogpost :: removePostFromList model.contentlist name
@@ -149,7 +147,7 @@ update msg model =
                             Post bp
 
                         Nothing ->
-                            Index
+                            Post <| BlogDecoder.Post "NOT FOUND" (Just "Could not find post you were looking for!")
             in
                 ( { model | subpage = subpage }, Cmd.none )
 
@@ -162,12 +160,6 @@ view model =
     let
         postname2item : Post -> Html Msg
         postname2item post =
-            --div []
-            --    [ Html.a [ Html.Attributes.href ("#!/blog/" ++ post.name), onClick (FetchBlogPostContents post) ] [ text <| extractPostName post ]
-            --    , text "foobar"
-            --    ]
-            --li [] [ text <| extractPostName post ]
-            --button [ onClick (UpdateBlogPost post.name) ] [ Html.a [ Html.Attributes.href ("#!/blog/" ++ post.name) ] [ text <| extractPostName post ] ]
             button [ onClick (FetchBlogPostContents post) ] [ text <| extractPostName post ]
 
         postnames2items : List Post -> List (Html Msg)

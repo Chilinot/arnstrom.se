@@ -7,9 +7,14 @@ import Json.Decode.Pipeline exposing (decode, required, optional, hardcoded)
 
 {-| For retrieving the contents of the master branch of the github repo.
 -}
-root_url : String
-root_url =
+root_contents_url : String
+root_contents_url =
     "https://api.github.com/repos/chilinot/blog/contents"
+
+
+root_download_url : String
+root_download_url =
+    "https://raw.githubusercontent.com/Chilinot/blog/master/"
 
 
 {-| Detetermines whether the string matches the expected
@@ -33,7 +38,6 @@ The contents is the raw markdown from the file, as a single string.
 -}
 type alias Post =
     { name : String
-    , download_url : String
     , contents : Maybe String
     }
 
@@ -43,7 +47,7 @@ type alias Post =
 file2Post : File -> Maybe Post
 file2Post file =
     if isBlogPost file then
-        Just <| Post file.name file.download_url Nothing
+        Just <| Post file.name Nothing
     else
         Nothing
 
