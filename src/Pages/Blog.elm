@@ -22,16 +22,7 @@ type SubPage
     | Post BlogDecoder.Post
 
 
-type
-    Msg
-    --= UpdateContentlist (Result Http.Error (List File))
-    --| UpdateBlogPost String (Result Http.Error String)
-    --  -- Will send a GET to the github api.
-    --| FetchContentlist
-    --| FetchBlogPostContents BlogDecoder.Post
-    --  -- Open a subpage
-    --| FindBlogPost String
-    --| View SubPage
+type Msg
     = UpdateContentlist (Result Http.Error (List File))
     | FetchContentlist
     | FetchPost String
@@ -110,7 +101,7 @@ update msg model =
         OpenPost name result ->
             let
                 contents =
-                    Result.withDefault "NO CONTENTS FOUND!" result
+                    Result.withDefault "POST NOT FOUND!" result
 
                 post =
                     BlogDecoder.Post name (Just contents)
@@ -155,4 +146,7 @@ view model =
                             Nothing ->
                                 "No contents!"
                 in
-                    text contents
+                    Grid.row []
+                        [ Grid.col []
+                            [ Markdown.toHtml [] contents ]
+                        ]
