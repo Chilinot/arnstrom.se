@@ -57,6 +57,7 @@ delta2builder prev curr =
     if prev.subpage /= curr.subpage then
         case curr.subpage of
             Index ->
+                --TODO This should probably use "replacePath []"
                 Nothing
 
             Post p ->

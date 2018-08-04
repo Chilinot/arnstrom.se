@@ -52,15 +52,6 @@ file2post file =
         Nothing
 
 
-{-| Decodes the returned content of a blog post.
-Right now this is only handled as a string. Which is very
-likely to change in the future.
--}
-postContentDecoder : Decoder String
-postContentDecoder =
-    Json.Decode.string
-
-
 {-| Decodes JSON into a File.
 -}
 fileDecoder : Decoder File
@@ -75,8 +66,6 @@ For decoding the content list returned by github.
 -}
 contentListDecoder : Decoder (List File)
 contentListDecoder =
-    --Json.Decode.decodeString (list fileDecoder) json
-    --    |> Result.withDefault [ File "No blogpost found!" "" ]
     list fileDecoder
 
 
