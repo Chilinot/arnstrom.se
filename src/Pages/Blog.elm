@@ -22,14 +22,20 @@ type SubPage
     | Post BlogDecoder.Post
 
 
-type Msg
+type
+    Msg
+    --= UpdateContentlist (Result Http.Error (List File))
+    --| UpdateBlogPost String (Result Http.Error String)
+    --  -- Will send a GET to the github api.
+    --| FetchContentlist
+    --| FetchBlogPostContents BlogDecoder.Post
+    --  -- Open a subpage
+    --| FindBlogPost String
+    --| View SubPage
     = UpdateContentlist (Result Http.Error (List File))
-    | UpdateBlogPost String (Result Http.Error String)
-      -- Will send a GET to the github api.
     | FetchContentlist
-    | FetchBlogPostContents BlogDecoder.Post
-      -- Open a subpage
-    | FindBlogPost String
+    | FetchPost String
+    | OpenPost String (Result Http.Error String)
     | View SubPage
 
 
@@ -46,10 +52,10 @@ downloadContentlistCmd =
         |> Http.send UpdateContentlist
 
 
-downloadBlogPostCmd : Post -> Cmd Msg
-downloadBlogPostCmd post =
-    Http.getString (BlogDecoder.root_download_url ++ post.name)
-        |> Http.send (UpdateBlogPost post.name)
+downloadBlogPostCmd : String -> Cmd Msg
+downloadBlogPostCmd name =
+    Http.getString (BlogDecoder.root_download_url ++ name)
+        |> Http.send (OpenPost name)
 
 
 delta2builder : Model -> Model -> Maybe Builder
@@ -57,8 +63,9 @@ delta2builder prev curr =
     if prev.subpage /= curr.subpage then
         case curr.subpage of
             Index ->
-                --TODO This should probably use "replacePath []"
-                Nothing
+                builder
+                    |> replacePath []
+                    |> Just
 
             Post p ->
                 builder
@@ -72,18 +79,10 @@ builder2messages : Builder -> List Msg
 builder2messages builder =
     case path builder of
         first :: rest ->
-            [ FindBlogPost first ]
+            [ FetchPost first ]
 
         _ ->
             [ FetchContentlist, View Index ]
-
-
-{-| Retrieve a Post record from a list that matches a post name.
--}
-postlocator : List Post -> String -> Maybe Post
-postlocator list name =
-    List.filter (\x -> x.name == name) list
-        |> List.head
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -105,52 +104,18 @@ update msg model =
         FetchContentlist ->
             ( model, downloadContentlistCmd )
 
-        FetchBlogPostContents post ->
-            ( model, downloadBlogPostCmd post )
+        FetchPost name ->
+            ( model, downloadBlogPostCmd name )
 
-        UpdateBlogPost name result ->
+        OpenPost name result ->
             let
-                -- Returns a post-list without the matching post.
-                removePostFromList : List Post -> String -> List Post
-                removePostFromList list name =
-                    List.filter (\x -> x.name /= name) list
+                contents =
+                    Result.withDefault "NO CONTENTS FOUND!" result
 
-                content =
-                    case result of
-                        Ok c ->
-                            c
-
-                        Err err ->
-                            toString err
-
-                blogpost =
-                    case postlocator model.contentlist name of
-                        Just p ->
-                            { p | contents = Just content }
-
-                        Nothing ->
-                            BlogDecoder.Post name (Just "Could not find post!")
-
-                newcontentlist =
-                    blogpost :: removePostFromList model.contentlist name
-            in
-                ( { model | contentlist = newcontentlist, subpage = Post blogpost }, Cmd.none )
-
-        FindBlogPost name ->
-            let
                 post =
-                    postlocator model.contentlist name
-
-                subpage : SubPage
-                subpage =
-                    case post of
-                        Just bp ->
-                            Post bp
-
-                        Nothing ->
-                            Post <| BlogDecoder.Post "NOT FOUND" (Just "Could not find post you were looking for!")
+                    BlogDecoder.Post name (Just contents)
             in
-                ( { model | subpage = subpage }, Cmd.none )
+                ( { model | subpage = Post post }, Cmd.none )
 
         View subpage ->
             ( { model | subpage = subpage }, Cmd.none )
@@ -161,7 +126,7 @@ view model =
     let
         postname2item : Post -> Html Msg
         postname2item post =
-            button [ onClick (FetchBlogPostContents post) ] [ text <| extractPostName post ]
+            button [ onClick (FetchPost post.name) ] [ text <| extractPostName post ]
 
         postnames2items : List Post -> List (Html Msg)
         postnames2items postlist =
