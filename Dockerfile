@@ -8,8 +8,7 @@ COPY --chown=node:node elm-package.json .
 
 # Install dependencies
 RUN elm-package install -y && \
-    npm install -g uglify-js@3.3.21 \
-                   elm-test@0.18.12
+    npm install -g uglify-js@3.3.21
 
 # Insert source code
 COPY --chown=node:node . .
