@@ -51,19 +51,16 @@ downloadBlogPostCmd name =
 
 delta2builder : Model -> Model -> Maybe Builder
 delta2builder prev curr =
-    if prev.subpage /= curr.subpage then
-        case curr.subpage of
-            Index ->
-                builder
-                    |> replacePath []
-                    |> Just
+    case curr.subpage of
+        Index ->
+            builder
+                |> replacePath []
+                |> Just
 
-            Post p ->
-                builder
-                    |> replacePath [ p.name ]
-                    |> Just
-    else
-        Nothing
+        Post p ->
+            builder
+                |> replacePath [ p.name ]
+                |> Just
 
 
 builder2messages : Builder -> List Msg
