@@ -6,13 +6,8 @@ import Html.Events exposing (onClick)
 import Http
 import Markdown
 import Bootstrap.Grid as Grid
-
-
---import Bootstrap.Card as Card
---import Bootstrap.Card.Block as Block
---import Bootstrap.Button as Button
-
-import BlogDecoder exposing (Post, File, extractPostName)
+import Bootstrap.Grid.Col as Col
+import BlogDecoder exposing (Post, File, extractPostName, postComparable)
 import RouteUrl.Builder exposing (Builder, builder, replacePath, path)
 import Maybe.Extra
 
@@ -142,30 +137,22 @@ view model =
                         |> capitilizeFirst
                         |> text
             in
-                Grid.row []
-                    --[ Grid.col []
-                    --    [ Card.config []
-                    --        |> Card.block []
-                    --            [ Block.titleH4 [] [ text (extractPostName post) ]
-                    --            , Block.link [ href ("#!/blog/" ++ post.name) ] [ text "Open" ]
-                    --            ]
-                    --        |> Card.view
-                    --    ]
-                    --]
-                    [ Grid.col []
-                        [ h4 [] [ title ] ]
-                    ]
+                li [] [ Html.a [ href ("#!/blog/" ++ post.name) ] [ title ] ]
 
         index : Model -> List (Html Msg)
         index model =
             if model.contentlist == [] then
-                [ Grid.row []
-                    [ Grid.col []
-                        [ text "No blog posts loaded." ]
-                    ]
+                [ ul [] [ text "No blog posts loaded." ]
                 ]
             else
-                List.map post2item model.contentlist
+                let
+                    sortedList =
+                        model.contentlist
+                            |> List.sortBy postComparable
+                            |> List.reverse
+                            |> List.map post2item
+                in
+                    [ ul [] sortedList ]
     in
         case model.subpage of
             Index ->

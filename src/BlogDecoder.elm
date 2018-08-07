@@ -22,7 +22,7 @@ structure for a blogpost filename.
 -}
 blogpost_regex : Regex
 blogpost_regex =
-    regex "^\\d+-(\\w+)\\.md$"
+    regex "^(\\d+)-(\\w+)\\.md$"
 
 
 {-| Represents a file in the content list returned from github.
@@ -40,6 +40,13 @@ type alias Post =
     { name : String
     , contents : Maybe String
     }
+
+
+{-| For sorting lists of Post-records.
+-}
+postComparable : Post -> Int
+postComparable post =
+    extractPostId post
 
 
 {-| Converts a File to a Post, if it is actully a blog post.
@@ -80,13 +87,32 @@ extractPostName post =
         |> Maybe.withDefault (Regex.Match "" [] 0 0)
         -- Retrieve the matched subgroups.
         |> .submatches
-        -- .submatches returns a list, but we only have one subgroup, so retrieve it.
+        -- .submatches returns a list, we have two subgroups, one for the id, one for the name.
+        -- Grab the second, by removing the first, then grabbing the head:
+        |> List.drop 1
         |> List.head
         -- List.head returns a Maybe-value so now we have a "Maybe (Maybe String)",
         -- unwrap the outer Maybe value.
         |> Maybe.withDefault Nothing
         -- Unwrap the inner "Maybe String".
         |> Maybe.withDefault "Name not found!"
+
+
+{-| Retrieves the ID of the post from the filename.
+Returns -1 if the ID could not be retrieved/found.
+Returns -2 if the ID was not a valid number.
+-}
+extractPostId : Post -> Int
+extractPostId post =
+    Regex.find Regex.All blogpost_regex post.name
+        |> List.head
+        |> Maybe.withDefault (Regex.Match "" [] 0 0)
+        |> .submatches
+        |> List.head
+        |> Maybe.withDefault Nothing
+        |> Maybe.withDefault "-1"
+        |> String.toInt
+        |> Result.withDefault -2
 
 
 {-| Uses regular expressions to determine whether a File
