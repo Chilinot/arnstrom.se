@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: website
-          image: lucasemanuel/arnstrom:1.4
+          image: lucasemanuel/arnstrom:2.0
           ports:
             - containerPort: 80
 ---
