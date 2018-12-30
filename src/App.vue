@@ -1,13 +1,21 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
+    <blog-header/>
     <router-view/>
+    <blog-footer/>
   </div>
 </template>
 
 <script>
+import BlogHeader from '@/components/BlogHeader'
+import BlogFooter from '@/components/BlogFooter'
+
 export default {
-  name: 'App'
+  name: 'App',
+  components: {
+    BlogHeader,
+    BlogFooter
+  }
 }
 </script>
 

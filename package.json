@@ -1,7 +1,7 @@
 {
   "name": "arnstrom.se",
-  "version": "1.0.0",
-  "description": "My Personal Website",
+  "version": "2.0.0",
+  "description": "Third rewrite of my personal blog",
   "author": "Lucas Arnström <lucas@arnstrom.se>",
   "private": true,
   "scripts": {
