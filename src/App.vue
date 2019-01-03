@@ -1,8 +1,12 @@
 <template>
   <div id="app">
-    <blog-header/>
-    <router-view/>
-    <blog-footer/>
+    <BlogHeader/>
+
+    <div class="container">
+      <router-view/>
+    </div>
+
+    <BlogFooter/>
   </div>
 </template>
 
@@ -20,12 +24,22 @@ export default {
 </script>
 
 <style>
+@import "https://fonts.googleapis.com/css?family=Open+Sans|Thasadith";
+
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: 'Open Sans';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.row {
+  flex-flow: row wrap;
 }
 </style>

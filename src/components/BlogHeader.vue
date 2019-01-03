@@ -1,17 +1,12 @@
 <template>
   <div class="header">
-    <p>{{title}}</p>
+    <span id="name">Lucas Arnström</span>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'blog-header',
-  data () {
-    return {
-      title: 'Header'
-    }
-  }
+  name: 'blog-header'
 }
 </script>
 
